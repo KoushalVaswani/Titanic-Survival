@@ -1,6 +1,6 @@
 # Titanic Survival Prediction 🚢
 
-This repository contains a comprehensive Machine Learning project that predicts passenger survival on the Titanic using the classic Titanic dataset from Seaborn. The project covers the entire data science pipeline: exploratory data cleaning, preprocessing, feature scaling, and comparing multiple classification models using both a standard Train-Test Split and 5-Fold Cross-Validation.
+This repository contains a comprehensive Machine Learning project that predicts passenger survival on the Titanic using the classic Titanic dataset from Seaborn. The project covers the entire data science pipeline: exploratory data cleaning, preprocessing, feature scaling, automated hyperparameter tuning, and comparing multiple classification models using both a standard Train-Test Split and 5-Fold Cross-Validation.
 
 ---
 
@@ -29,21 +29,32 @@ We trained and evaluated five different classification algorithms to find the mo
 3. **Decision Tree Classifier** (Tree-based non-linear model)
 4. **K-Nearest Neighbors (KNN)** (Distance-based local learner)
 5. **Support Vector Machine (SVM)** (Boundary-based global learner)
+6. **Random Forest Classifier** (Ensemble tree-based learner)
+
+---
+
+## ⚙️ Hyperparameter Tuning (GridSearchCV)
+To squeeze out the maximum performance from our best-performing algorithm, we implemented **GridSearchCV** for automated hyperparameter optimization on the Support Vector Classifier. 
+
+The grid search evaluated various combinations of regularization parameters (`C`), kernel coefficients (`gamma`), and kernel types, revealing the most optimal configuration:
+* **Best Parameters Found:** `{'C': 1, 'gamma': 0.1, 'kernel': 'rbf'}`
 
 ---
 
 ## 📊 Final Model Performance Comparison
 
-To understand the true generalizability of our best-performing models and eliminate the element of "luck" from a single random split, we applied **5-Fold Cross-Validation**. 
+To understand the true generalizability of our models and eliminate the element of "luck" from a single random split, we applied **5-Fold Cross-Validation** alongside automated tuning.
 
 Here is the complete breakdown of how the models performed:
 
 | Model Name | Single Split Accuracy (80-20) | 5-Fold CV Mean Accuracy | Status / Remark |
 | :--- | :---: | :---: | :--- |
-| **Support Vector Machine (SVM)** | 81.46% | **82.79%** | 🏆 **Winner** (Highly stable, robust against noise) |
+| **Optimized SVM (Tuned via GridSearch)** | **82.02%** | **82.79%** | 🏆 **Winner** (Highly stable, optimized boundary) |
+| **Support Vector Machine (Baseline)** | 81.46% | 82.79% | Robust global learner |
 | **K-Nearest Neighbors (KNN)** | 81.46% | 80.31% | 📉 Accuracy dropped due to local noise sensitivity |
 | **Logistic Regression** | 80.33% | *Not Evaluated* | Standard baseline performance |
 | **Decision Tree Classifier** | 80.33% | *Not Evaluated* | Standard baseline performance |
+| **Random Forest Classifier** | 80.33% | *Not Evaluated* | Default ensemble baseline |
 | **Gaussian Naive Bayes** | 77.52% | *Not Evaluated* | Lowest baseline performance |
 
 ---
@@ -51,8 +62,9 @@ Here is the complete breakdown of how the models performed:
 ## 🔍 Key Insights & Technical Takeaways
 
 1. **The Train-Test Split Illusion:** On a simple 80-20 random split, both **KNN (with $K=35$)** and **SVM** scored an identical **81.46%**. This made them look equally good initially.
-2. **Why KNN Dropped on Cross-Validation ($81.46\% \rightarrow $80.31%):** KNN is a *local learner* that relies strictly on the closest data points (neighbors). The Titanic dataset contains noise (e.g., wealthy passengers who didn't survive or lower-class passengers who did). When tested across different folds, KNN's local boundaries fluctuated significantly due to this noise, revealing its true lower average accuracy.
-3. **Why SVM Won ($81.46\% \rightarrow $82.79%):** SVM creates a *global decision boundary (hyperplane)* using an `rbf` kernel. Instead of getting distracted by individual noisy points, it focuses on the most critical boundary points (Support Vectors). This allowed it to remain highly stable and perform even better when evaluated across all folds.
+2. **Why KNN Dropped on Cross-Validation ($81.46\% \rightarrow 80.31\%$):** KNN is a *local learner* that relies strictly on the closest data points (neighbors). The Titanic dataset contains noise (e.g., wealthy passengers who didn't survive or lower-class passengers who did). When tested across different folds, KNN's local boundaries fluctuated significantly due to this noise, revealing its true lower average accuracy.
+3. **Why SVM Won ($81.46\% \rightarrow 82.79\%$):** SVM creates a *global decision boundary (hyperplane)* using an `rbf` kernel. Instead of getting distracted by individual noisy points, it focuses on the most critical boundary points (Support Vectors). This allowed it to remain highly stable and perform even better when evaluated across all folds.
+4. **The Power of Tuning ($81.46\% \rightarrow 82.02\%$):** By utilizing `GridSearchCV` to systematically find the sweet spot for `C=1` and `gamma=0.1`, the test accuracy of the final deployment-ready model successfully pushed past the baseline to hit a peak of **82.02%**.
 
 ---
 
@@ -60,4 +72,4 @@ Here is the complete breakdown of how the models performed:
 1. Clone this repository to your local machine or open it directly in Google Colab.
 2. Ensure you have the required Python libraries installed:
 ```bash
-   pip install numpy pandas seaborn matplotlib scikit-learn
+pip install numpy pandas seaborn matplotlib scikit-learn
